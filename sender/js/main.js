@@ -1,33 +1,66 @@
-;(function (window, document, undefined)
+;window.Caster = (function (window, document, undefined)
 { 'use strict';
 
-    var SHARE_URL_ID = 'share-url';
-    var PEERJS_API_KEY = 'w19j6rp47wx9a4i';
+    // the private property/method store
+    var _p = {};
 
-    var peer = new Peer({ key: PEERJS_API_KEY });
-
-    peer.on('open', function (id)
+    // the main application constructor
+    var Caster = function ()
     {
-        document.getElementById(SHARE_URL_ID).value = window.location.href + '#id=' + id;
-    });
+        // private properties (constants)
+        _p.PEERJS_API_KEY   = 'w19j6rp47wx9a4i';
+        _p.SHARE_URL_ID     = 'share-url';
+        _p.THAT             = this;
 
-    var ORIGIN_ID = window.location.hash.split('=')[1] || '';
+        // private properties
+        _p._id              = null;
+        _p._peer            = null;
+        _p._peer_connection = null;
 
-    if (ORIGIN_ID !== '')
-    {
-        var conn = peer.connect(ORIGIN_ID);
-
-        conn.on('open', function ()
+        // private methods
+        _p.initializePeerJS = function ()
         {
-            conn.send('testing!');
-        });
-    }
+            _p._peer = new Peer({ key: _p.PEERJS_API_KEY });
 
-    peer.on('connection', function (conn)
-    {
-        conn.on('data', function (data)
+            _p._peer.on('open', function (id)
+            {
+                _p._id = id;
+                document.getElementById(_p.SHARE_URL_ID).value = window.location.href + '#id=' + id;
+            });
+        };
+
+        _p.readyConnection = function ()
         {
-            console.log(data);
-        });
-    });
+            var origin_id = window.location.hash.split('=')[1] || '';
+
+            if (origin_id !== '')
+            {
+                _p._peer_connection = _p._peer.connect(origin_id);
+
+                _p._peer_connection.on('open', function ()
+                {
+                    _p._peer_connection.send('testing!');
+                });
+            }
+
+            _p._peer.on('connection', function (conn)
+            {
+                conn.on('data', function (data)
+                {
+                    console.log(data);
+                });
+            });
+        };
+    };
+
+    Caster.prototype.Start = function ()
+    {
+        _p.initializePeerJS();
+        _p.readyConnection();
+    };
+
+    return new Caster();
+
 })(window, document);
+
+window.Caster.Start();
