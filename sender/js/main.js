@@ -8,24 +8,27 @@
     var Caster = function ()
     {
         // private properties (constants)
-        _p.PEERJS_API_KEY   = 'w19j6rp47wx9a4i';
-        _p.SHARE_URL_ID     = 'share-url';
-        _p.THAT             = this;
+        _p.THAT = this;
 
         // private properties
-        _p._id              = null;
-        _p._peer            = null;
-        _p._peer_connection = null;
+        _p.cast   = {
+            app_id:     '08DCB031'
+        };
+        _p.peerjs = {
+            api_key:    'w19j6rp47wx9a4i',
+            connection: null,
+            id:         null,
+            peer:       null
+        };
 
         // private methods
         _p.initializePeerJS = function ()
         {
-            _p._peer = new Peer({ key: _p.PEERJS_API_KEY });
+            _p.peerjs.peer = new Peer({ key: _p.peerjs.api_key });
 
-            _p._peer.on('open', function (id)
+            _p.peerjs.peer.on('open', function (id)
             {
-                _p._id = id;
-                document.getElementById(_p.SHARE_URL_ID).value = window.location.href + '#id=' + id;
+                _p.peerjs.id = id;
             });
         };
 
@@ -35,15 +38,15 @@
 
             if (origin_id !== '')
             {
-                _p._peer_connection = _p._peer.connect(origin_id);
+                _p.peerjs.connection = _p.peerjs.peer.connect(origin_id);
 
-                _p._peer_connection.on('open', function ()
+                _p.peerjs.connection.on('open', function ()
                 {
-                    _p._peer_connection.send('testing!');
+                    _p.peerjs.connection.send('testing!');
                 });
             }
 
-            _p._peer.on('connection', function (conn)
+            _p.peerjs.peer.on('connection', function (conn)
             {
                 conn.on('data', function (data)
                 {
@@ -53,10 +56,27 @@
         };
     };
 
+    Caster.prototype.InitializeCastAPI = function ()
+    {
+        window.__onGCastApiAvailable = function(isAvailable, errorInfo)
+        {
+            if (isAvailable)
+            {
+                console.log('Cast API is Available!');
+            }
+            else
+            {
+                console.log(errorInfo);
+            }
+        };
+    };
+
     Caster.prototype.Start = function ()
     {
         _p.initializePeerJS();
         _p.readyConnection();
+
+        this.InitializeCastAPI();
     };
 
     return new Caster();
