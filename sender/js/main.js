@@ -14,7 +14,8 @@
         _p.cast   = {
             api:           null,
             app_id:        '08DCB031',
-            receiver_list: null
+            receiver_list: null,
+            session: null
         };
         _p.peerjs = {
             api_key:       'w19j6rp47wx9a4i',
@@ -31,6 +32,8 @@
             _p.peerjs.peer.on('open', function (id)
             {
                 _p.peerjs.id = id;
+
+                _p.readyConnection();
             });
         };
 
@@ -56,114 +59,82 @@
                 });
             });
         };
-    };
 
-    Caster.prototype.InitializeCastAPI = function ()
-    {
-        // private local properties
-        var THAT = this;
-
-        // private methods
-        // var onLaunch = function (activity)
-        // {
-        //     if (activity.status === 'running')
-        //     {
-        //         _p.cast.api.sendMessage(activity.activityId, 'io.renobit.caster', { type: 'testing' });
-        //     }
-        // };
-        //
-        // var doLaunch = function (receiver)
-        // {
-        //     var request = new cast.LaunchRequest(_p.cast.app_id, receiver);
-        //
-        //     _p.cast.api.launch(request, onLaunch);
-        // };
-        //
-        // var onReceiverList = function (list)
-        // {
-        //     var receiver_list_element = document.getElementById('receiver-list');
-        //     if (list.length > 0)
-        //     {
-        //         _p.cast.receiver_list = list;
-        //         receiver_list_element.innerHTML = '';
-        //
-        //         for (var i = 0, l = list.length; i < l; ++i)
-        //         {
-        //             var list_item_element = document.createElement('li');
-        //             var receiver = list[i];
-        //
-        //             list_item_element.setAttribute('id', receiver.id);
-        //             list_item_element.setAttribute('href', '#');
-        //             list_item_element.innerHTML = receiver.name;
-        //
-        //             list_item_element.addEventListener('click', function (e)
-        //             {
-        //                 e.preventDefault();
-        //
-        //                 doLaunch(receiver);
-        //             }, false);
-        //
-        //             receiver_list_element.appendChild(list_item_element);
-        //         }
-        //     }
-        //     else
-        //     {
-        //
-        //     }
-        // };
-
-        var receiverListener = function (e)
+        _p.initializeCastAPI = function ()
         {
-            if (e === chrome.cast.ReceiverAvailability.AVAILABLE)
+            // private local properties
+            var THAT = this;
+
+            // private local methods
+            var onRequestSessionSuccess = function (session)
             {
-                
-            }
-        };
+                _p.cast.session = session;
+            };
 
-        var sessionListener = function (e)
-        {
-            _p.cast.session = e;
-
-            if (_p.cast.session.media.length != 0)
+            var onLaunchError = function (error)
             {
+                console.log('request session error');
+                console.log(error);
+            };
 
-            }
-        };
-
-        window.__onGCastApiAvailable = function(isAvailable, errorInfo)
-        {
-            if (isAvailable)
+            var onInitError = function (error)
             {
-                if (_p.cast.api === null)
+                console.log(error);
+            };
+
+            var receiverListener = function (availability)
+            {
+                console.log('receiver listener callback');
+                if (availability === chrome.cast.ReceiverAvailability.AVAILABLE)
                 {
-                    var cast_session_request = new chrome.cast.SessionRequest(_p.cast.app_id);
-                    var cast_api_config      = new chrome.cast.ApiConfig(cast_session_request, sessionListener, receiverListener);
-
-                    chrome.cast.initialize(cast_api_config, onInitSuccess, onError);
-
-                    // _p.cast.api = new cast.Api();
-                    // _p.cast.api.addReceiverListener(_p.cast.app_id, onReceiverList);
+                    console.log('- receiver available');
+                    chrome.cast.requestSession(onRequestSessionSuccess, onLaunchError);
                 }
-            }
-            else
+            };
+
+            var sessionListener = function (session)
             {
-                console.log(errorInfo);
-            }
+                console.log('session listener callback');
+                _p.cast.session = session;
+
+                if (_p.cast.session.media.length != 0)
+                {
+                    console.log('- media discovered');
+                    onMediaDiscovered(onRequestSessionSuccess, _p.cast.session.media[0]);
+                }
+            };
+
+            var onInitSuccess = function ()
+            {
+                console.log('Cast API Successfully Initiated');
+            };
+
+            // event listener for cast api availability
+            window.__onGCastApiAvailable = function(isAvailable, errorInfo)
+            {
+                if (isAvailable)
+                {
+                    if (_p.cast.api === null)
+                    {
+                        var cast_session_request = new chrome.cast.SessionRequest(_p.cast.app_id);
+                        var cast_api_config      = new chrome.cast.ApiConfig(cast_session_request, sessionListener, receiverListener);
+
+                        chrome.cast.initialize(cast_api_config, onInitSuccess, onInitError);
+                    }
+                }
+                else
+                {
+                    console.log(errorInfo);
+                }
+            };
         };
     };
 
     Caster.prototype.Start = function ()
     {
         _p.initializePeerJS();
-        _p.readyConnection();
-
-        this.InitializeCastAPI();
+        _p.initializeCastAPI();
     };
-
-    Caster.prototype.GetPrivate = function ()
-    {
-        return _p;
-    }
 
     return new Caster();
 
