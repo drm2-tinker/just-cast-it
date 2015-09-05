@@ -15,7 +15,7 @@
             api:           null,
             app_id:        '08DCB031',
             receiver_list: null,
-            session: null
+            session:       null
         };
         _p.peerjs = {
             api_key:       'w19j6rp47wx9a4i',
