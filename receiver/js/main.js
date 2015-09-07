@@ -28,10 +28,25 @@
         // private methods
         _p.initializeCastAPI = function ()
         {
+            var launchMessageListener = function ()
+            {
+                _p.cast.message_bus.onMessage = function (messageEvent)
+                {
+                    var sender_id = messageEvent.senderId;
+                    var message   = messageEvent.data;
+
+                    document.getElementById('message-container').innerText = message;
+                };
+            };
+
             _p.cast.receiver_manager = cast.receiver.CastReceiverManager.getInstance();
             _p.cast.message_bus      = _p.cast.receiver_manager.getCastMessageBus('urn:x-cast:io.renobit.apps.just-cast-it');
 
+            // initiate Cast application
             _p.cast.receiver_manager.start();
+
+            // start listening for messages from senders
+            launchMessageListener();
         };
     };
 
