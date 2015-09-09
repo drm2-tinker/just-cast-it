@@ -42,11 +42,11 @@
             _p.cast.receiver_manager = cast.receiver.CastReceiverManager.getInstance();
             _p.cast.message_bus      = _p.cast.receiver_manager.getCastMessageBus('urn:x-cast:io.renobit.apps.just-cast-it');
 
-            // initiate Cast application
-            _p.cast.receiver_manager.start();
-
             // start listening for messages from senders
             launchMessageListener();
+            
+            // initiate Cast application
+            _p.cast.receiver_manager.start();
         };
     };
 
