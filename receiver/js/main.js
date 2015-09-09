@@ -35,7 +35,7 @@
                     var sender_id = messageEvent.senderId;
                     var message   = messageEvent.data;
 
-                    document.getElementById('message-container').innerText = message;
+                    document.getElementById('message-container').innerHTML = message;
                 };
             };
 
