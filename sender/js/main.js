@@ -69,6 +69,21 @@
             var onRequestSessionSuccess = function (session)
             {
                 _p.cast.session = session;
+
+                setTimeout(function ()
+                {
+                    var onSuccess = function ()
+                    {
+                        console.log('Message sent successfully!');
+                    };
+
+                    var onError = function (error)
+                    {
+                        console.log(error);
+                    };
+
+                    _p.cast.session.sendMessage('urn:x-cast:io.renobit.apps.just-cast-it', 'Testing!', onSuccess, onError);
+                }, 5000);
             };
 
             var onLaunchError = function (error)
