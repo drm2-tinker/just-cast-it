@@ -30,6 +30,8 @@
         {
             var launchMessageListener = function ()
             {
+                document.getElementById('message-container').innerHTML = 'Now Listening for Messages...';
+
                 _p.cast.message_bus.onMessage = function (messageEvent)
                 {
                     var sender_id = messageEvent.senderId;
@@ -44,7 +46,7 @@
 
             // start listening for messages from senders
             launchMessageListener();
-            
+
             // initiate Cast application
             _p.cast.receiver_manager.start();
         };
