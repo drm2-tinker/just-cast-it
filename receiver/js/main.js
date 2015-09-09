@@ -56,6 +56,9 @@
     {
         _p.initializeCastAPI();
     };
+
+    return new Caster();
+    
 })(window, document);
 
 window.Caster.Start();
