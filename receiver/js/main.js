@@ -57,3 +57,5 @@
         _p.initializeCastAPI();
     };
 })(window, document);
+
+window.Caster.Start();
