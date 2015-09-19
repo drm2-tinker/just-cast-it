@@ -26,6 +26,41 @@
         };
 
         // private methods
+        _p.initializePeerJS = function ()
+        {
+            _p.peerjs.peer = new Peer({ key: _p.peerjs.api_key });
+
+            _p.peerjs.peer.on('open', function (id)
+            {
+                _p.peerjs.id = id;
+
+                _p.readyConnection();
+            });
+        };
+
+        _p.readyConnection = function ()
+        {
+            var origin_id = window.location.hash.split('=')[1] || '';
+
+            if (origin_id !== '')
+            {
+                _p.peerjs.connection = _p.peerjs.peer.connect(origin_id);
+
+                _p.peerjs.connection.on('open', function ()
+                {
+                    _p.peerjs.connection.send('testing!');
+                });
+            }
+
+            _p.peerjs.peer.on('connection', function (conn)
+            {
+                conn.on('data', function (data)
+                {
+                    console.log(data);
+                });
+            });
+        };
+
         _p.initializeCastAPI = function ()
         {
             var launchMessageListener = function ()
@@ -35,9 +70,28 @@
                 _p.cast.message_bus.onMessage = function (messageEvent)
                 {
                     var sender_id = messageEvent.senderId;
-                    var message   = messageEvent.data;
+                    var message   = JSON.parse(messageEvent.data);
 
-                    document.getElementById('message-container').innerHTML = message;
+                    switch (message.type)
+                    {
+                        case 'message':
+                            document.getElementById('message-container').innerHTML = message.payload;
+
+                            break;
+                        case 'peerjs-id':
+                            _p.peerjs.sender_id = message.payload;
+                            _p.peerjs.connection = _p.peerjs.peer.connect(_p.peerjs.sender_id);
+
+                            _p.peerjs.connection.on('open', function ()
+                            {
+                                _p.peerjs.connection.send('testing!');
+                            });
+
+                            break;
+                        default:
+
+                            break;
+                    }
                 };
             };
 
@@ -54,11 +108,12 @@
 
     Caster.prototype.Start = function ()
     {
+        _p.initializePeerJS();
         _p.initializeCastAPI();
     };
 
     return new Caster();
-    
+
 })(window, document);
 
 window.Caster.Start();
