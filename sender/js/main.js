@@ -12,16 +12,17 @@
 
         // private properties
         _p.cast   = {
-            api:           null,
-            app_id:        '08DCB031',
-            receiver_list: null,
-            session:       null
+            api:             null,
+            app_id:          '08DCB031',
+            receiver_list:   null,
+            session:         null,
+            session_request: null
         };
         _p.peerjs = {
-            api_key:       'w19j6rp47wx9a4i',
-            connection:    null,
-            id:            null,
-            peer:          null
+            api_key:         'w19j6rp47wx9a4i',
+            connection:      null,
+            id:              null,
+            peer:            null
         };
 
         // private methods
@@ -82,7 +83,10 @@
                         console.log(error);
                     };
 
-                    _p.cast.session.sendMessage('urn:x-cast:io.renobit.apps.just-cast-it', 'Testing!', onSuccess, onError);
+                    document.getElementById('message-submit').addEventListener('click', function ()
+                    {
+                        _p.cast.session.sendMessage('urn:x-cast:io.renobit.apps.just-cast-it', document.getElementById('message').value, onSuccess, onError);
+                    }, false);
                 }, 5000);
             };
 
@@ -103,7 +107,7 @@
                 if (availability === chrome.cast.ReceiverAvailability.AVAILABLE)
                 {
                     console.log('- receiver available');
-                    chrome.cast.requestSession(onRequestSessionSuccess, onLaunchError);
+                    chrome.cast.requestSession(onRequestSessionSuccess, onLaunchError, _p.cast.session_request);
                 }
             };
 
@@ -131,8 +135,8 @@
                 {
                     if (_p.cast.api === null)
                     {
-                        var cast_session_request = new chrome.cast.SessionRequest(_p.cast.app_id);
-                        var cast_api_config      = new chrome.cast.ApiConfig(cast_session_request, sessionListener, receiverListener);
+                        _p.cast.session_request = new chrome.cast.SessionRequest(_p.cast.app_id);
+                        var cast_api_config     = new chrome.cast.ApiConfig(_p.cast.session_request, sessionListener, receiverListener);
 
                         chrome.cast.initialize(cast_api_config, onInitSuccess, onInitError);
                     }
