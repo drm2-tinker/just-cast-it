@@ -64,7 +64,7 @@
                                     payload: _p.peerjs.id
                                 };
 
-                                _p.peerjs.connection.send(message);
+                                _p.peerjs.connection.send(JSON.stringify(message));
                             });
 
                             _p.peerjs.peer.on('connection', function (conn)
