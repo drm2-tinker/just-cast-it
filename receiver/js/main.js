@@ -33,31 +33,6 @@
             _p.peerjs.peer.on('open', function (id)
             {
                 _p.peerjs.id = id;
-
-                _p.readyConnection();
-            });
-        };
-
-        _p.readyConnection = function ()
-        {
-            var origin_id = window.location.hash.split('=')[1] || '';
-
-            if (origin_id !== '')
-            {
-                _p.peerjs.connection = _p.peerjs.peer.connect(origin_id);
-
-                _p.peerjs.connection.on('open', function ()
-                {
-                    _p.peerjs.connection.send('testing!');
-                });
-            }
-
-            _p.peerjs.peer.on('connection', function (conn)
-            {
-                conn.on('data', function (data)
-                {
-                    console.log(data);
-                });
             });
         };
 
@@ -85,6 +60,22 @@
                             _p.peerjs.connection.on('open', function ()
                             {
                                 _p.peerjs.connection.send('testing!');
+                            });
+
+                            _p.peerjs.peer.on('connection', function (conn)
+                            {
+                                var video = document.getElementById('video');
+                                var count = 0;
+
+                                video.src = video.webkitMediaSourceURL;
+
+                                conn.on('data', function (data)
+                                {
+                                    video.webkitSourceAppend(new Uint8Array(data.payload));
+
+                                    console.log('adding video chunk (' + count + ')...');
+                                    ++count;
+                                });
                             });
 
                             break;
