@@ -61,7 +61,7 @@
                             {
                                 var message = {
                                     type:    'peerjs-id',
-                                    payload: _p.peerjs.id;
+                                    payload: _p.peerjs.id
                                 };
 
                                 _p.peerjs.connection.send(message);
