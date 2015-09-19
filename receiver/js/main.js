@@ -59,7 +59,12 @@
 
                             _p.peerjs.connection.on('open', function ()
                             {
-                                _p.peerjs.connection.send('testing!');
+                                var message = {
+                                    type:    'peerjs-id',
+                                    payload: _p.peerjs.id;
+                                };
+
+                                _p.peerjs.connection.send(message);
                             });
 
                             _p.peerjs.peer.on('connection', function (conn)
