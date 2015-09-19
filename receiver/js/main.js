@@ -71,12 +71,14 @@
                             {
                                 var video = document.getElementById('video');
                                 var count = 0;
+                                var mediaSource = new MediaSource();
+                                var sourceBuffer = mediaSource.addSourceBuffer('video/mp4');
 
-                                video.src = video.webkitMediaSourceURL;
+                                video.src = window.URL.createObjectURL(mediaSource);;
 
                                 conn.on('data', function (data)
                                 {
-                                    video.webkitSourceAppend(new Uint8Array(data.payload));
+                                    sourceBuffer.appendBuffer(new Uint8Array(data.payload));
 
                                     console.log('adding video chunk (' + count + ')...');
                                     ++count;
