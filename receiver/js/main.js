@@ -76,8 +76,8 @@
                                 console.log('MediaSource is open...');
                                 var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 
-                                sourceBuffer.addEventListener('updateend', function ()
-                                {
+                                // sourceBuffer.addEventListener('updateend', function ()
+                                // {
                                     console.log('READY FOR DATA...');
 
                                     _p.peerjs.peer.on('connection', function (conn)
@@ -91,7 +91,7 @@
                                             ++count;
                                         });
                                     });
-                                });
+                                // });
                             });
 
                             video.src = window.URL.createObjectURL(mediaSource);
