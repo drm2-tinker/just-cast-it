@@ -92,6 +92,11 @@
                                             {
                                                 console.log('adding video chunk (' + count + ')...');
 
+                                                while (sourceBuffer.updating)
+                                                {
+                                                    // wait...
+                                                }
+                                                
                                                 sourceBuffer.appendBuffer(new Uint8Array(data.payload));
 
                                                 ++count;
