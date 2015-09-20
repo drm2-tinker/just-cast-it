@@ -72,16 +72,23 @@
                                 var video = document.getElementById('video');
                                 var count = 0;
                                 var mediaSource = new MediaSource();
-                                var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 
-                                video.src = window.URL.createObjectURL(mediaSource);;
-
-                                conn.on('data', function (data)
+                                mediaSource.addEventListener('sourceopen', function ()
                                 {
-                                    sourceBuffer.appendBuffer(new Uint8Array(data.payload));
+                                    var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 
-                                    console.log('adding video chunk (' + count + ')...');
-                                    ++count;
+                                    sourceBuffer.addEventListener('updateend', function ()
+                                    {
+                                        video.src = window.URL.createObjectURL(mediaSource);;
+
+                                        conn.on('data', function (data)
+                                        {
+                                            sourceBuffer.appendBuffer(new Uint8Array(data.payload));
+
+                                            console.log('adding video chunk (' + count + ')...');
+                                            ++count;
+                                        });
+                                    });
                                 });
                             });
 
