@@ -67,25 +67,28 @@
                                 _p.peerjs.connection.send(JSON.stringify(message));
                             });
 
-                            _p.peerjs.peer.on('connection', function (conn)
+                            var video = document.getElementById('video');
+                            var count = 0;
+                            var mediaSource = new MediaSource();
+
+                            mediaSource.addEventListener('sourceopen', function ()
                             {
-                                var video = document.getElementById('video');
-                                var count = 0;
-                                var mediaSource = new MediaSource();
+                                var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 
-                                mediaSource.addEventListener('sourceopen', function ()
+                                sourceBuffer.addEventListener('updateend', function ()
                                 {
-                                    var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+                                    video.src = window.URL.createObjectURL(mediaSource);
 
-                                    sourceBuffer.addEventListener('updateend', function ()
+                                    console.log('READY FOR DATA...');
+
+                                    _p.peerjs.peer.on('connection', function (conn)
                                     {
-                                        video.src = window.URL.createObjectURL(mediaSource);;
-
                                         conn.on('data', function (data)
                                         {
+                                            console.log('adding video chunk (' + count + ')...');
+
                                             sourceBuffer.appendBuffer(new Uint8Array(data.payload));
 
-                                            console.log('adding video chunk (' + count + ')...');
                                             ++count;
                                         });
                                     });
