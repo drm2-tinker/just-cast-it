@@ -71,14 +71,14 @@
                             var count = 0;
                             var mediaSource = new MediaSource();
 
+                            video.src = window.URL.createObjectURL(mediaSource);
+
                             mediaSource.addEventListener('sourceopen', function ()
                             {
                                 var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 
                                 sourceBuffer.addEventListener('updateend', function ()
                                 {
-                                    video.src = window.URL.createObjectURL(mediaSource);
-
                                     console.log('READY FOR DATA...');
 
                                     _p.peerjs.peer.on('connection', function (conn)
