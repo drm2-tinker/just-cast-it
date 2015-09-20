@@ -71,8 +71,6 @@
                             var count = 0;
                             var mediaSource = new MediaSource();
 
-                            video.src = window.URL.createObjectURL(mediaSource);
-
                             mediaSource.addEventListener('sourceopen', function ()
                             {
                                 var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
@@ -94,6 +92,8 @@
                                     });
                                 });
                             });
+
+                            video.src = window.URL.createObjectURL(mediaSource);
 
                             break;
                         default:
