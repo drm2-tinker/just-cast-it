@@ -84,13 +84,18 @@
                                     {
                                         console.log('sender connected...');
 
-                                        conn.on('data', function (data)
+                                        conn.on('open', function ()
                                         {
-                                            console.log('adding video chunk (' + count + ')...');
+                                            console.log('connection open...');
 
-                                            sourceBuffer.appendBuffer(new Uint8Array(data.payload));
+                                            conn.on('data', function (data)
+                                            {
+                                                console.log('adding video chunk (' + count + ')...');
 
-                                            ++count;
+                                                sourceBuffer.appendBuffer(new Uint8Array(data.payload));
+
+                                                ++count;
+                                            });
                                         });
                                     });
                                 // });
