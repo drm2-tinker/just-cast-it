@@ -82,11 +82,11 @@
 
                                     _p.peerjs.peer.on('connection', function (conn)
                                     {
-                                        conn.on('data', function (data)
+                                        conn.on('data', function (chunk)
                                         {
                                             console.log('adding video chunk (' + count + ')...');
 
-                                            sourceBuffer.appendBuffer(new Uint8Array(data.payload));
+                                            sourceBuffer.appendBuffer(new Uint8Array(chunk));
 
                                             ++count;
                                         });
