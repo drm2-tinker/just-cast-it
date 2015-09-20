@@ -82,6 +82,8 @@
 
                                     _p.peerjs.peer.on('connection', function (conn)
                                     {
+                                        console.log('sender connected...');
+
                                         conn.on('data', function (data)
                                         {
                                             console.log('adding video chunk (' + count + ')...');
