@@ -72,7 +72,7 @@
                                 var video = document.getElementById('video');
                                 var count = 0;
                                 var mediaSource = new MediaSource();
-                                var sourceBuffer = mediaSource.addSourceBuffer('video/mp4');
+                                var sourceBuffer = mediaSource.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
 
                                 video.src = window.URL.createObjectURL(mediaSource);;
 
