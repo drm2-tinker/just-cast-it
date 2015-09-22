@@ -22,7 +22,8 @@
             api_key:         'w19j6rp47wx9a4i',
             connection:      null,
             id:              null,
-            peer:            null
+            peer:            null,
+            receiver_id:     null
         };
 
         // private methods
@@ -40,23 +41,59 @@
 
         _p.readyConnection = function ()
         {
-            var origin_id = window.location.hash.split('=')[1] || '';
-
-            if (origin_id !== '')
-            {
-                _p.peerjs.connection = _p.peerjs.peer.connect(origin_id);
-
-                _p.peerjs.connection.on('open', function ()
-                {
-                    _p.peerjs.connection.send('testing!');
-                });
-            }
-
             _p.peerjs.peer.on('connection', function (conn)
             {
                 conn.on('data', function (data)
                 {
-                    console.log(data);
+                    var message = JSON.parse(data);
+
+                    if (message.type === 'peerjs-id')
+                    {
+                        _p.peerjs.receiver_id = message.payload;
+                        console.log('received peerjs id from receiver...');
+
+                        _p.peerjs.connection = _p.peerjs.peer.connect(_p.peerjs.receiver_id);
+
+                        _p.peerjs.connection.on('open', function ()
+                        {
+                            console.log('connected to receiver...');
+
+                            var fileInput = document.getElementById('file-input');
+
+                            fileInput.addEventListener('change', function (e)
+                            {
+                                var file = fileInput.files[0];
+                                var chunkSize = 1024 * 1024; // 64 KB
+                                var fileSize = file.size;
+                                var startByte = 0;
+
+                                while (startByte <= chunkSize * 5)
+                                // while (startByte < chunkSize)
+                                {
+                                    var reader = new FileReader();
+
+                                    reader.onload = function (e)
+                                    {
+                                        var chunk = e.target.result;
+
+                                        var data = {
+                                            payload: chunk
+                                            // payload: 'test'
+                                        };
+
+                                        console.log('sending data!');
+                                        _p.peerjs.connection.send(data);
+                                    };
+
+                                    var chunk = file.slice(startByte, startByte + chunkSize);
+
+                                    reader.readAsArrayBuffer(chunk);
+
+                                    startByte += chunkSize;
+                                }
+                            });
+                        });
+                    }
                 });
             });
         };
@@ -71,22 +108,34 @@
             {
                 _p.cast.session = session;
 
+                var onSuccess = function ()
+                {
+                    console.log('Message sent successfully!');
+                };
+
+                var onError = function (error)
+                {
+                    console.log(error);
+                };
+
                 setTimeout(function ()
                 {
-                    var onSuccess = function ()
-                    {
-                        console.log('Message sent successfully!');
-                    };
-
-                    var onError = function (error)
-                    {
-                        console.log(error);
-                    };
-
                     document.getElementById('message-submit').addEventListener('click', function ()
                     {
-                        _p.cast.session.sendMessage('urn:x-cast:io.renobit.apps.just-cast-it', document.getElementById('message').value, onSuccess, onError);
+                        var message = {
+                            type:    'message',
+                            payload: document.getElementById('message').value
+                        };
+
+                        _p.cast.session.sendMessage('urn:x-cast:io.renobit.apps.just-cast-it', JSON.stringify(message), onSuccess, onError);
                     }, false);
+
+                    var message = {
+                        type:    'peerjs-id',
+                        payload: _p.peerjs.id
+                    };
+
+                    _p.cast.session.sendMessage('urn:x-cast:io.renobit.apps.just-cast-it', JSON.stringify(message), onSuccess, onError);
                 }, 5000);
             };
 
